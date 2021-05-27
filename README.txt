@@ -1,0 +1,5 @@
+- where to put the connection to the db
+- I did a ping to find out the ip for the first API
+- documento .md para explicar lo que he hecho
+- I could not create a cronjob because I'm working on a Windows machine, so I could not be able to modify the crontab and set up the timer
+- best solution is to deal with the event directly from msql
