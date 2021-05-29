@@ -1,4 +1,8 @@
 <?php
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
+
 require_once $_SERVER['DOCUMENT_ROOT']."/php_test/queries.php";
 
 $link = mysqli_connect("localhost", "root", "", "server_info");
@@ -32,18 +36,59 @@ function getServerStatistics($url) {
     return $response;
 }
 
-//APIs list
-// they need to be stored in a config file in a json format
-//$serverAPIs = array("https://209.18.114.71/aiportal/v1.1/stats", "https://209.18.114.72/aiportal/v1.1/stats", "https://209.18.114.73/aiportal/v1.1/stats", "https://209.18.114.74/aiportal/v1.1/stats", "https://217.72.248.93/aiportal/v1.1/stats");
+//APIs list comes from config.json
+//$serverAPIs = array("https://glai-tls1.transperfect.com/aiportal/v1.1/stats", "https://209.18.114.72/aiportal/v1.1/stats", "https://209.18.114.73/aiportal/v1.1/stats", "https://209.18.114.74/aiportal/v1.1/stats", "https://217.72.248.93/aiportal/v1.1/stats");
 $data = file_get_contents ("config.json");
+// array $serverAPIs
 $serverAPIs = json_decode($data, true);
+echo "<br/>";
+print_r ($serverAPIs['apiAddressOne']);
 //getting data from APIs
-//for($i=0; $i < sizeof($serverAPIs); $i++){
-    $stats = getServerStatistics($serverAPIs[0]['apiAddress']);
-//}
+/*$stats = getServerStatistics("https://glai-tls1.transperfect.com/aiportal/v1.1/stats");
+$response = json_decode($stats, true); 
+echo '<p>Server status: '. $response['default']['name'] .'</p>';*/
+//$isNullEmptyOrSet = is_null($response) || isset($response) || empty($response);
+//echo 'stats is '.$isNullEmptyOrSet.'<br>';
 
-$response = json_decode($stats, true); //because of true, it's in an array
-echo '<p>Server status: '. $response['default']['name'] .'</p>';
+foreach ($serverAPIs as $key => $value){
+    // echo 'The key : '.$key.' and the value '.$value;
+    //for each API I get its JSON
+    $stats = getServerStatistics("https://glai-tls1.transperfect.com/aiportal/v1.1/stats");
+    
+    $response = json_decode($stats, true); 
+    //because of true, it's in an array
+    // In every JSON I look for rhe values I need
+    // $isNullEmptyOrSet = is_null($value) || isset($value) || empty($value);
+    // $isNullEmptyOrSet = is_null($response) || isset($response) || empty($response);
+    /*$isResponseEmpty = empty($response);
+    $isNullEmptyOrSet = is_null($stats) || isset($stats) || empty($stats);
+    echo 'response is '.$isNullEmptyOrSet.'<br>';*/
+    // echo 'is response empty? '.$isResponseEmpty.'<br>';
+    // echo 'respuesta : '.$response[0]["default"];
+
+    echo 'allalai : '.$response['welcome']['total-jobs'];
+
+    // foreach ($response as $keyX => $valueX){
+    //     echo '<p>Server status: '. $keyX.' and the value '.$valueX.'</p>';
+    // }
+
+}
+
+// $json_mock_2 = '[{
+//                    "name" : "Federica", 
+//                    "apellido" : "Valoyes",
+//                    "gender" : "she doesnt knows",
+//                    "age" : 19
+//                 }]';
+
+// $phpArray = json_decode($json_mock_2, true);
+// echo $phpArray[0]["name"].' '.$phpArray[0]["apellido"];
+// $phpObject = json_decode($json_mock_2);
+// echo 'imprimiendo objeto '. $phpObject[0]->name .' '.$phpObject[0]->apellido;
+
+
+
+
 
 // VM_IP
 $pattern = "/[\d.]{15}/";
