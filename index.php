@@ -1,135 +1,71 @@
 <?php
-ini_set('display_errors', 1);
-ini_set('display_startup_errors', 1);
-error_reporting(E_ALL);
-
+ini_set('max_execution_time', '60000'); 
 require_once $_SERVER['DOCUMENT_ROOT']."/php_test/queries.php";
+require_once $_SERVER['DOCUMENT_ROOT']."/php_test/api.php";
 
-$link = mysqli_connect("localhost", "root", "", "server_info");
+function saveData($link, $response, $url){
+    $pattern = "/[\d.]{15}/";
+    $valid = filter_var("https://209.18.114.71/aiportal/v1.1/stats", FILTER_VALIDATE_IP);
+    preg_match($pattern,  "https://209.18.114.71/aiportal/v1.1/stats", $matches); 
+    //print_r( $matches);
+
+    // cpu load
+    $cpu_load = $response['system']['cpu']['used'];
+    //echo "<p>cpu load" . $cpu_load . "</p>";
+
+    // mem load
+    $mem_load = $response['system']['mem']['used'];
+    //echo "<p>mem load" . $mem_load . "</p>";
+
+    // queued jobs
+    $queued_jobs = $response['welcome']['current-jobs-delayed'] + $response['welcome']['current-jobs-ready'] 
+                + $response['ocr']['current-jobs-delayed'] + $response['ocr']['current-jobs-ready'] 
+                + $response['convertsource']['current-jobs-delayed'] + $response['convertsource']['current-jobs-ready']
+                + $response['langdet']['current-jobs-delayed'] + $response['langdet']['current-jobs-ready'] 
+                + $response['translate']['current-jobs-delayed'] + $response['translate']['current-jobs-ready'] 
+                + $response['generatefinal']['current-jobs-delayed'] + $response['generatefinal']['current-jobs-ready'];
+
+    //echo "<p>queued jobs" . $queued_jobs . "</p>";
+
+    //inprogress jobs
+    $inprogress_job = $response['welcome']['current-jobs-reserved'] + $response['ocr']['current-jobs-reserved'] 
+                    + $response['convertsource']['current-jobs-reserved'] + $response['langdet']['current-jobs-reserved'] 
+                    + $response['translate']['current-jobs-reserved'] + $response['generatefinal']['current-jobs-reserved'];
+
+    // get data and save it every minute
+     insertData($link, $url, $cpu_load, $mem_load, $inprogress_job, $queued_jobs);
+}
 
 // connection to the db
+$link = mysqli_connect("localhost", "root", "", "server_info");
 connectToDB($link);
 
-// create table if it doesn't exist
+// create table
 createTable($link);
 
-//connection to the API - server 1
-function getServerStatistics($url) {
-    $curl = curl_init();
+//while(1){
+    //time limit 1 hour
+    set_time_limit(60000);
+    //APIs list comes from config.json
+    $data = file_get_contents ("config.json");
+    // array $serverAPIs
+    $serverAPIs = json_decode($data, true);
 
-    curl_setopt_array($curl, array(
-    CURLOPT_URL => $url,
-    CURLOPT_RETURNTRANSFER => true,
-    CURLOPT_TIMEOUT => 30,
-    CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-    CURLOPT_CUSTOMREQUEST => "GET",
-    CURLOPT_HTTPHEADER => array(
-        "cache-control: no-cache"
-    ),
-    ));
+    //$IPs = array("217.72.248.93", "209.18.114.72", "209.18.114.73", "209.18.114.74", "217.72.248.93");
 
-    $response = curl_exec($curl);
-    $err = curl_error($curl);
-
-    curl_close($curl);
-
-    return $response;
-}
-
-//APIs list comes from config.json
-//$serverAPIs = array("https://glai-tls1.transperfect.com/aiportal/v1.1/stats", "https://209.18.114.72/aiportal/v1.1/stats", "https://209.18.114.73/aiportal/v1.1/stats", "https://209.18.114.74/aiportal/v1.1/stats", "https://217.72.248.93/aiportal/v1.1/stats");
-$data = file_get_contents ("config.json");
-// array $serverAPIs
-$serverAPIs = json_decode($data, true);
-echo "<br/>";
-print_r ($serverAPIs['apiAddressOne']);
-//getting data from APIs
-/*$stats = getServerStatistics("https://glai-tls1.transperfect.com/aiportal/v1.1/stats");
-$response = json_decode($stats, true); 
-echo '<p>Server status: '. $response['default']['name'] .'</p>';*/
-//$isNullEmptyOrSet = is_null($response) || isset($response) || empty($response);
-//echo 'stats is '.$isNullEmptyOrSet.'<br>';
-
-foreach ($serverAPIs as $key => $value){
-    // echo 'The key : '.$key.' and the value '.$value;
-    //for each API I get its JSON
-    $stats = getServerStatistics("https://glai-tls1.transperfect.com/aiportal/v1.1/stats");
+    // recorro los servers y para cada uno tengo una respuesta - array
+    foreach ($serverAPIs as $key => $url){
+        //for each API I get its JSON
+        $stats = getServerStatistics($url);    
+        $response = json_decode($stats, true);
+        //recorro cada respuesta de cada server y cogo sus datos, luego los guardo en la bd
+        //tendria que ser 5 server con los mismos datos
+        saveData($link, $response, $url);
+    }
     
-    $response = json_decode($stats, true); 
-    //because of true, it's in an array
-    // In every JSON I look for rhe values I need
-    // $isNullEmptyOrSet = is_null($value) || isset($value) || empty($value);
-    // $isNullEmptyOrSet = is_null($response) || isset($response) || empty($response);
-    /*$isResponseEmpty = empty($response);
-    $isNullEmptyOrSet = is_null($stats) || isset($stats) || empty($stats);
-    echo 'response is '.$isNullEmptyOrSet.'<br>';*/
-    // echo 'is response empty? '.$isResponseEmpty.'<br>';
-    // echo 'respuesta : '.$response[0]["default"];
+    header('Content-Type: application/json');
+    echo displayNewInfo($link);   
 
-    echo 'allalai : '.$response['welcome']['total-jobs'];
-
-    // foreach ($response as $keyX => $valueX){
-    //     echo '<p>Server status: '. $keyX.' and the value '.$valueX.'</p>';
-    // }
-
-}
-
-// $json_mock_2 = '[{
-//                    "name" : "Federica", 
-//                    "apellido" : "Valoyes",
-//                    "gender" : "she doesnt knows",
-//                    "age" : 19
-//                 }]';
-
-// $phpArray = json_decode($json_mock_2, true);
-// echo $phpArray[0]["name"].' '.$phpArray[0]["apellido"];
-// $phpObject = json_decode($json_mock_2);
-// echo 'imprimiendo objeto '. $phpObject[0]->name .' '.$phpObject[0]->apellido;
-
-
-
-
-
-// VM_IP
-$pattern = "/[\d.]{15}/";
-$valid = filter_var("https://209.18.114.71/aiportal/v1.1/stats", FILTER_VALIDATE_IP);
-preg_match($pattern,  "https://209.18.114.71/aiportal/v1.1/stats", $matches); 
-print_r( $matches);
-
-// cpu load
-$cpu_load = $response['system']['cpu']['used'];
-echo "<p>" . $cpu_load . "</p>";
-
-// mem load
-$mem_load = $response['system']['mem']['used'];
-echo "<p>" . $mem_load . "</p>";
-
-// queued jobs
-$queued_jobs = $response['welcome']['current-jobs-delayed'] + $response['welcome']['current-jobs-ready'] 
-            + $response['ocr']['current-jobs-delayed'] + $response['ocr']['current-jobs-ready'] 
-            + $response['convertsource']['current-jobs-delayed'] + $response['convertsource']['current-jobs-ready']
-            + $response['langdet']['current-jobs-delayed'] + $response['langdet']['current-jobs-ready'] 
-            + $response['translate']['current-jobs-delayed'] + $response['translate']['current-jobs-ready'] 
-            + $response['generatefinal']['current-jobs-delayed'] + $response['generatefinal']['current-jobs-ready'];
-
-echo "<p>" . $queued_jobs . "</p>";
-
-//inprogress jobs
-$inprogress_job = $response['welcome']['current-jobs-reserved'] + $response['ocr']['current-jobs-reserved'] 
-                + $response['convertsource']['current-jobs-reserved'] + $response['langdet']['current-jobs-reserved'] 
-                + $response['translate']['current-jobs-reserved'] + $response['generatefinal']['current-jobs-reserved'];
-
-
-echo "<p>" . $inprogress_job . "</p>";
-
-// get data and save it every minute
-insertData($link, $cpu_load, $mem_load, $inprogress_job, $queued_jobs);
-
-// get the information and save it in a json
-$rows = getData($link);
-
-$json_retrieved_data = json_encode($rows);
-//echo "<p>" . $json_retrieved_data . "</p>";
-file_put_contents('results.json', $json_retrieved_data);
-
+    //sleep(60);
+//}
 ?>

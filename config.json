@@ -1,7 +1,8 @@
 {
-    "apiAddressOne":"https://209.18.114.71/aiportal/v1.1/stats",
-    "apiAddressTwo":"https://209.18.114.72/aiportal/v1.1/stats",
-    "apiAddressThree":"https://209.18.114.73/aiportal/v1.1/stats",
-    "apiAddressFour":"https://209.18.114.74/aiportal/v1.1/stats",
-    "apiAddressFive":"https://217.72.248.93/aiportal/v1.1/stats"
+    "apiAddressOne":"https://glai-tls1.transperfect.com/aiportal/v1.1/stats",
+    "apiAddressTwo":"https://glai-tls1.transperfect.com/aiportal/v1.1/stats",
+    "apiAddressThree":"https://glai-tls1.transperfect.com/aiportal/v1.1/stats",
+    "apiAddressFour":"https://glai-tls1.transperfect.com/aiportal/v1.1/stats",
+    "apiAddressFive":"https://glai-tls1.transperfect.com/aiportal/v1.1/stats",
+    "apiAddressSix":"https://glai-tls1.transperfect.com/aiportal/v1.1/stats"
 }
