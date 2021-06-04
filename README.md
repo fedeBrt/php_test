@@ -1,7 +1,7 @@
 # php_test
 
 ## Setup ##
-This application is not deployed. Make sure you have a local server running on port 80 and MySQL running on port 3006. You'll also need to run 'npm -start' from the 'React-frontend' React project and then check the results on localhost:3000. A .sql file example already populated has been provided as well, which needs to be imported in the local database. 
+This application is not deployed. Make sure you have a local server running on port 80 and MySQL running on port 3006. You'll also need to run 'npm -start' from the 'React-frontend' React project and then check the results on localhost:3000. 
 
 ## Backend ##
 The backend gets the information from APIs, save it in the database 'server_info' in the table 'server_status'. For each server it will save the information, so 6 rows will be created every minute (one for each server). I've used an infinite while loop with a sleep function. 
