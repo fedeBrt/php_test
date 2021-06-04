@@ -5,7 +5,7 @@ require_once $_SERVER['DOCUMENT_ROOT']."/php_test/api.php";
 
 function saveData($link, $response, $url){
     //ip
-    $ip = "1234";
+    $ip = "";
     if ($url == "https://209.18.114.71/aiportal/v1.1/stats"){
         $ip = "209.18.114.71";
     } else if ($url == "https://209.18.114.72/aiportal/v1.1/statss"){
