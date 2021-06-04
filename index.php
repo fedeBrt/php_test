@@ -51,8 +51,6 @@ createTable($link);
     // array $serverAPIs
     $serverAPIs = json_decode($data, true);
 
-    //$IPs = array("217.72.248.93", "209.18.114.72", "209.18.114.73", "209.18.114.74", "217.72.248.93");
-
     // recorro los servers y para cada uno tengo una respuesta - array
     foreach ($serverAPIs as $key => $url){
         //for each API I get its JSON
@@ -63,8 +61,20 @@ createTable($link);
         saveData($link, $response, $url);
     }
     
+    //creating json and displaying it
+    /*$IPs = array("217.72.248.93", "209.18.114.72", "209.18.114.73", "209.18.114.74", "217.72.248.93");
     header('Content-Type: application/json');
-    echo displayNewInfo($link);   
+    $total = count($IPs);
+    $output = "{";
+    for($i=0; $i<count($IPs);$i++){
+        $output .= "\"$IPs[$i]\" : " . displayNewInfo($link, $IPs[$i]) .",";
+    }
+    $output = substr($output, 0, -1);
+    $output .= "}";
+    echo $output;*/
+
+    header('Content-Type: application/json');
+    echo displayNewInfo($link);
 
     //sleep(60);
 //}

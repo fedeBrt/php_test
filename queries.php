@@ -21,13 +21,7 @@ function createTable($link){
     }
 }
 
-function insertData($link, $url, $cpu_load, $mem_load, $inprogress_job, $queued_jobs){
-   /*echo $url;
-    if($url === 'https://glai-tls1.transperfect.com/aiportal/v1.1/stats'){
-        $ip = '217.72.248.93';
-    }*/
- 
-    $ip = '217.72.248.93';
+function insertData($link, $ip, $cpu_load, $mem_load, $inprogress_job, $queued_jobs){
      $insert_data_query = mysqli_query($link, "INSERT INTO server_info.server_status (dateAndTime, vmIp, cpu, mem, inProgressJobs, queuedJobs)
          VALUES (NOW(), '$ip', $cpu_load, $mem_load, $inprogress_job, $queued_jobs)");
  

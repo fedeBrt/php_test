@@ -1,5 +1,5 @@
 <?php
-//connection to the API
+//connection to the API and get its data
 function getServerStatistics($url) {
     $curl = curl_init();
 
@@ -27,7 +27,6 @@ function getServerStatistics($url) {
 // get the information and save it in a json
 function displayNewInfo($link){
     $rows = getData($link);
-
     $json_retrieved_data = json_encode($rows);
     return $json_retrieved_data;
 }
