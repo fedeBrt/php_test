@@ -10,7 +10,7 @@ function createTable($link){
     $create_table_query = mysqli_query($link, "CREATE TABLE IF NOT EXISTS server_status 
                         (id INT(6) UNSIGNED AUTO_INCREMENT PRIMARY KEY,
                         dateAndTime TIMESTAMP,
-                        vmIp VARCHAR(13) NOT NULL,
+                        vmIp VARCHAR(20) NOT NULL,
                         cpu FLOAT(4,2) NOT NULL,
                         mem FLOAT(4,2),
                         inProgressJobs INT(6),

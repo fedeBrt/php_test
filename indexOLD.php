@@ -108,7 +108,7 @@ $inprogress_job = $response['welcome']['current-jobs-reserved'] + $response['ocr
 //echo "<p>in progress jobs" . $inprogress_job . "</p>";
 
 // get data and save it every minute
-insertData($link, $cpu_load, $mem_load, $inprogress_job, $queued_jobs);
+//insertData($link, $cpu_load, $mem_load, $inprogress_job, $queued_jobs);
 }
 
 // get the information and save it in a json
